@@ -1,0 +1,2 @@
+*.fbx filter=lfs diff=lfs merge=lfs -text
+juegoFinal/Blender_Threejs_Mongo/game-project/public/models/PersonajePrincipal/*.fbx !text !filter !merge !diff

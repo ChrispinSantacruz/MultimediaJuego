@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongo:
+    image: mongo:7.0
+    container_name: game-mongodb
+    restart: always
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_DATABASE: gamedb
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - game-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: game-backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGO_URI=mongodb://mongo:27017/gamedb
+      - JWT_SECRET=tu_secreto_super_seguro_cambiar_en_produccion_12345678
+    depends_on:
+      - mongo
+    networks:
+      - game-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  game-network:
+    driver: bridge
