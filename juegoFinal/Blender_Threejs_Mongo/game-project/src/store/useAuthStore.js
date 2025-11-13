@@ -28,6 +28,11 @@ const useAuthStore = create(
                         throw new Error(data.error || 'Error al registrar');
                     }
 
+                    console.log('✅ REGISTRO EXITOSO');
+                    console.log('👤 Usuario:', data.user);
+                    console.log('🔑 JWT Token:', data.token);
+                    console.log('📊 Decodificado:', JSON.parse(atob(data.token.split('.')[1])));
+
                     set({
                         user: data.user,
                         token: data.token,
@@ -57,6 +62,11 @@ const useAuthStore = create(
                     if (!response.ok) {
                         throw new Error(data.error || 'Error al iniciar sesión');
                     }
+
+                    console.log('✅ LOGIN EXITOSO');
+                    console.log('👤 Usuario:', data.user);
+                    console.log('🔑 JWT Token:', data.token);
+                    console.log('📊 Decodificado:', JSON.parse(atob(data.token.split('.')[1])));
 
                     set({
                         user: data.user,

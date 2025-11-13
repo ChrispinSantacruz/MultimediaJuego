@@ -558,6 +558,13 @@ export default class World {
             this.points = 0;
             this.robot.points = 0;
             this.finalPrizeActivated = false;
+            
+            // 🔥 IMPORTANTE: Limpiar array de prizes ANTES de cargar nuevos bloques
+            if (this.loader && this.loader.prizes) {
+                console.log(`🧹 Limpiando ${this.loader.prizes.length} monedas del nivel anterior antes de cargar nuevas`);
+                this.loader.prizes = [];
+            }
+            
             this.experience.menu.setStatus?.(`🎖️ Puntos: ${this.points}`);
 
             if (data.blocks) {
@@ -677,8 +684,28 @@ export default class World {
         console.log(`🎯 Objetos 3D actuales en escena: ${this.scene.children.length}`);
 
         // 🔥 IMPORTANTE: Limpiar array de prizes para evitar conflictos entre niveles
-        if (this.loader && this.loader.prizes) {
+        if (this.loader && this.loader.prizes && this.loader.prizes.length > 0) {
             console.log(`🪙 Limpiando ${this.loader.prizes.length} monedas del nivel anterior`);
+            
+            // Eliminar pivots de la escena
+            this.loader.prizes.forEach(prize => {
+                if (prize.pivot) {
+                    this.scene.remove(prize.pivot);
+                    
+                    // Limpiar geometrías y materiales
+                    prize.pivot.traverse(child => {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(mat => mat.dispose());
+                            } else {
+                                child.material.dispose();
+                            }
+                        }
+                    });
+                }
+            });
+            
             this.loader.prizes = [];
         }
 
@@ -693,32 +720,8 @@ export default class World {
             console.log(`🎯 Cuerpos físicos actuales en Physics World: ${physicsBodiesRemaining}`);
         }
 
-        if (this.loader && this.loader.prizes.length > 0) {
-            this.loader.prizes.forEach(prize => {
-                if (prize.model) {
-                    this.scene.remove(prize.model);
-                    if (prize.model.geometry) prize.model.geometry.dispose();
-                    if (prize.model.material) {
-                        if (Array.isArray(prize.model.material)) {
-                            prize.model.material.forEach(mat => mat.dispose());
-                        } else {
-                            prize.model.material.dispose();
-                        }
-                    }
-                }
-            });
-            this.loader.prizes = [];
-            console.log('🎯 Premios del nivel anterior eliminados correctamente.');
-        }
-
+        // Resetear flag de portal
         this.finalPrizeActivated = false
-        this.loader?.prizes?.forEach(p => {
-            if (p.role === "finalPrize" && p.pivot) {
-                p.pivot.visible = false;
-                if (p.model) p.model.visible = false;
-                p.collected = false;
-            }
-        })
 
 
         /** Esto es de faro para limpienza */

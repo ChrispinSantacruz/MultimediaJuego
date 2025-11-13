@@ -47,8 +47,8 @@ export default class Robot {
             shape: shape,
             //position: new CANNON.Vec3(4, 1, 0), // Apenas sobre el piso real (que termina en y=0)
             position: new CANNON.Vec3(0, 1.2, 0),
-            linearDamping: 0.3,
-            angularDamping: 0.9
+            linearDamping: 0.6,      // Aumentado de 0.3 a 0.6 para más fricción
+            angularDamping: 0.95     // Aumentado de 0.9 a 0.95 para menos giro
         })
 
         this.body.angularFactor.set(0, 1, 0)

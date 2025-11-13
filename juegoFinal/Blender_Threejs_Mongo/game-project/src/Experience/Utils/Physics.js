@@ -28,12 +28,12 @@ export default class Physics {
             this.robotMaterial,
             this.obstacleMaterial,
             {
-                friction: 0.6,
-                restitution: 0.0,
-                contactEquationStiffness: 1e9,
-                contactEquationRelaxation: 3,
-                frictionEquationStiffness: 1e7,
-                frictionEquationRelaxation: 3
+                friction: 0.8,                      // Aumentado de 0.6 a 0.8 para menos deslizamiento
+                restitution: 0.0,                   // Sin rebote (ya estaba bien)
+                contactEquationStiffness: 1e8,      // Reducido de 1e9 a 1e8 para colisiones más suaves
+                contactEquationRelaxation: 4,       // Aumentado de 3 a 4 para más amortiguación
+                frictionEquationStiffness: 1e6,     // Reducido de 1e7 a 1e6 para menos fuerza de fricción
+                frictionEquationRelaxation: 4       // Aumentado de 3 a 4
             }
         )
         this.world.addContactMaterial(robotObstacleContact)
@@ -42,12 +42,12 @@ export default class Physics {
             this.robotMaterial,
             this.wallMaterial,
             {
-                friction: 0.6,
-                restitution: 0.0,
-                contactEquationStiffness: 1e9,
-                contactEquationRelaxation: 2,
-                frictionEquationStiffness: 1e7,
-                frictionEquationRelaxation: 2
+                friction: 0.9,                      // Aumentado de 0.6 a 0.9 (paredes más pegajosas)
+                restitution: 0.0,                   // Sin rebote
+                contactEquationStiffness: 1e8,      // Reducido de 1e9 a 1e8
+                contactEquationRelaxation: 4,       // Aumentado de 2 a 4 para más suavidad
+                frictionEquationStiffness: 1e6,     // Reducido de 1e7 a 1e6
+                frictionEquationRelaxation: 4       // Aumentado de 2 a 4
             }
         )
         this.world.addContactMaterial(robotWallContact)
