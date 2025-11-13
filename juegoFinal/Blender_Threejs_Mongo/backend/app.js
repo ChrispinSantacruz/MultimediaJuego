@@ -45,11 +45,22 @@ app.get('/', (req, res) => {
 app.use('/api/blocks', blockRoutes)
 app.use('/api/auth', authRoutes)
 
+// Verificar que MONGO_URI esté configurado
+if (!process.env.MONGO_URI) {
+    console.error('❌ ERROR: MONGO_URI no está configurado en las variables de entorno')
+    console.error('Por favor, configura MONGO_URI en Railway con tu conexión de MongoDB Atlas')
+    process.exit(1)
+}
+
+console.log('🔄 Conectando a MongoDB...')
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('✅ Conectado a MongoDB')
     })
-    .catch(err => console.error('Error al conectar a MongoDB:', err))
+    .catch(err => {
+        console.error('❌ Error al conectar a MongoDB:', err.message)
+        console.error('Verifica tu string de conexión y que MongoDB Atlas permita conexiones desde Railway')
+    })
 
 /**
  * Implementacion experiencia multijugador
