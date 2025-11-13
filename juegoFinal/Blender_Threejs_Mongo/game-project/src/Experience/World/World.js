@@ -45,9 +45,11 @@ export default class World {
         // Tiempo del último trabajo pesado (ms) para throttling
         this._lastHeavyUpdate = 0
 
+        // Reducir delay inicial para mejorar experiencia de usuario
         setTimeout(() => {
             this.allowPrizePickup = true
-        }, 2000)
+            console.log('🎮 Recolección de monedas habilitada')
+        }, 500)
 
         this.resources.on('ready', async () => {
             this.floor = new Floor(this.experience)
@@ -215,15 +217,31 @@ export default class World {
 
 
         const speed = this.robot?.body?.velocity?.length?.() || 0
-        const moved = speed > 0.5
+        // Permitir recolección si el jugador se movió aunque sea mínimamente
+        // o si ha estado en el juego más de 3 segundos (evita pickup instantáneo al inicio)
+        const hasMovedEnough = speed > 0.1 || this.hasMoved
+
+        if (speed > 0.1 && !this.hasMoved) {
+            this.hasMoved = true
+        }
 
         this.loader.prizes.forEach((prize) => {
             if (!prize.pivot) return
 
             const dist = prize.pivot.position.distanceTo(pos)
-            if (dist < 1.2 && moved && !prize.collected) {
+            
+            // Debug temporal: mostrar distancia cuando estás cerca
+            if (dist < 3 && !prize.collected) {
+                // Solo loguear ocasionalmente para no saturar consola
+                if (Math.random() < 0.01) {
+                    console.log(`🪙 Moneda detectada - Distancia: ${dist.toFixed(2)}m, Moved: ${hasMovedEnough}, Allow: ${this.allowPrizePickup}`);
+                }
+            }
+            
+            if (dist < 1.5 && hasMovedEnough && !prize.collected) {
                 prize.collect()
                 prize.collected = true
+                console.log(`✅ Moneda recogida! Distancia: ${dist.toFixed(2)}m`);
 
                 if (prize.role === "default") {
                     this.currentLevelPoints = (this.currentLevelPoints || 0) + 1
@@ -470,6 +488,15 @@ export default class World {
         this.levelProgressing = false;
         this.defeatTriggered = false;
         this.currentLevel = level;
+        
+        // Resetear estado de movimiento pero permitir pickup inmediato después de un pequeño delay
+        this.hasMoved = false;
+        this.allowPrizePickup = false;
+        setTimeout(() => {
+            this.allowPrizePickup = true;
+            console.log('🎮 Recolección habilitada para nuevo nivel');
+        }, 500);
+        
         console.log(`🔄 Cargando nivel ${level}. Variables reseteadas.`);
         console.log(`📍 Nivel solicitado: ${level}, currentLevel será actualizado después.`);
         console.log(`💰 Puntos totales mantenidos: ${this.totalPoints}`);
