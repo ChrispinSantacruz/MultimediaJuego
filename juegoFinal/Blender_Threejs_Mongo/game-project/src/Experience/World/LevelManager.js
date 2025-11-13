@@ -3,11 +3,12 @@ export default class LevelManager {
         this.experience = experience;
         this.currentLevel = 1;  // Inicias en el nivel 1
         this.totalLevels = 3;   // Total de niveles (ajustado a 3)
-        // Definir objetivos de monedas por nivel
+        // ⭐ Definir objetivos de monedas por nivel
+        // IMPORTANTE: Cambia estos números para ajustar cuántas monedas necesitas recoger
         this.pointsToComplete = {
-            1: 2, // por defecto (puedes ajustarlo si quieres)
-            2: 5,
-            3: 3
+            1: 2, // Nivel 1: 2 monedas para activar portal
+            2: 2, // Nivel 2: 2 monedas para activar portal
+            3: 2  // Nivel 3: 2 monedas para activar portal
         };
     }
 
