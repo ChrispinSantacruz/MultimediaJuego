@@ -17,8 +17,11 @@ const port = process.env.PORT || 3001
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    process.env.FRONTEND_URL // URL de Vercel
+    'https://multimedia-juego.vercel.app', // Vercel production
+    process.env.FRONTEND_URL // Variable adicional de Vercel
 ].filter(Boolean)
+
+console.log('🔒 CORS configurado para:', allowedOrigins)
 
 app.use(cors({
     origin: function (origin, callback) {
@@ -26,8 +29,10 @@ app.use(cors({
         if (!origin) return callback(null, true)
         
         if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+            console.log('✅ CORS permitido para:', origin)
             callback(null, true)
         } else {
+            console.log('❌ CORS bloqueado para:', origin)
             callback(new Error('Not allowed by CORS'))
         }
     },
