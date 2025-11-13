@@ -10,7 +10,7 @@ export default class Enemy {
         this.time = this.experience.time
         this.physics = this.experience.physics
         this.target = null
-        this.speed = 6
+        this.speed = 3.5 // Reducido de 6 a 3.5 para ser más lento que el jugador
         this.chaseDistance = 300
         
         this.position = position
@@ -57,7 +57,7 @@ export default class Enemy {
             mass: 2,
             shape: shape,
             position: new CANNON.Vec3(position.x, position.y || 1, position.z),
-            linearDamping: 0.1, // Más damping para movimientos más suaves
+            linearDamping: 0.4, // Aumentado de 0.1 a 0.4 para frenar más rápido
             angularDamping: 0.9
         })
         

@@ -47,8 +47,8 @@ export default class Robot {
             shape: shape,
             //position: new CANNON.Vec3(4, 1, 0), // Apenas sobre el piso real (que termina en y=0)
             position: new CANNON.Vec3(0, 1.2, 0),
-            linearDamping: 0.6,      // Aumentado de 0.3 a 0.6 para más fricción
-            angularDamping: 0.95     // Aumentado de 0.9 a 0.95 para menos giro
+            linearDamping: 0.4,      // Reducido de 0.6 a 0.4 para mantener velocidad al correr
+            angularDamping: 0.95     // Mantener para control de giro
         })
 
         this.body.angularFactor.set(0, 1, 0)
@@ -147,13 +147,13 @@ export default class Robot {
         }
 
         const keys = this.keyboard.getState()
-        const moveForce = 200 // Aumentado para más velocidad
-        const turnSpeed = 4.0
+        const moveForce = 350 // Aumentado significativamente para recorrer más distancia
+        const turnSpeed = 5.0 // Más rápido para girar
         const delta = this.time.delta * 0.001
         let isMoving = false
 
-        // Limitar velocidad (aumentada para escapar de enemigos)
-        const maxSpeed = 50
+        // Limitar velocidad (aumentada para recorrer distancia más rápido)
+        const maxSpeed = 80 // Aumentado de 50 a 80
         this.body.velocity.x = Math.max(Math.min(this.body.velocity.x, maxSpeed), -maxSpeed)
         this.body.velocity.z = Math.max(Math.min(this.body.velocity.z, maxSpeed), -maxSpeed)
         
