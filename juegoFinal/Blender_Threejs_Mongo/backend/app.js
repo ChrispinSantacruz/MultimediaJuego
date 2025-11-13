@@ -1,4 +1,8 @@
-require('dotenv').config()
+// Solo cargar dotenv en desarrollo (cuando hay archivo .env)
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config()
+}
+
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
@@ -45,10 +49,18 @@ app.get('/', (req, res) => {
 app.use('/api/blocks', blockRoutes)
 app.use('/api/auth', authRoutes)
 
+// Debug: Mostrar variables de entorno disponibles (sin valores sensibles)
+console.log('🔍 Variables de entorno disponibles:')
+console.log('NODE_ENV:', process.env.NODE_ENV)
+console.log('PORT:', process.env.PORT)
+console.log('MONGO_URI:', process.env.MONGO_URI ? '✅ Configurado' : '❌ NO configurado')
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ Configurado' : '❌ NO configurado')
+
 // Verificar que MONGO_URI esté configurado
 if (!process.env.MONGO_URI) {
     console.error('❌ ERROR: MONGO_URI no está configurado en las variables de entorno')
     console.error('Por favor, configura MONGO_URI en Railway con tu conexión de MongoDB Atlas')
+    console.error('Variables disponibles:', Object.keys(process.env).filter(key => !key.includes('PATH')).join(', '))
     process.exit(1)
 }
 
