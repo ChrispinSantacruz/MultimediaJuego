@@ -6,8 +6,13 @@
 1. Ve a https://railway.app
 2. New Project → Deploy from GitHub repo
 3. Selecciona `ChrispinSantacruz/MultimediaJuego`
-4. Root Directory: `juegoFinal/Blender_Threejs_Mongo/backend`
-5. Add Variables:
+4. **IMPORTANTE - Configurar Root Directory:**
+   - Click en el servicio creado
+   - Ve a **Settings** (⚙️)
+   - Busca **Root Directory**
+   - Escribe: `juegoFinal/Blender_Threejs_Mongo/backend`
+   - Click **Save**
+5. Add Variables (pestaña Variables):
    ```
    NODE_ENV=production
    PORT=3001

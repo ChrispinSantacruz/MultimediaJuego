@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["cd juegoFinal/Blender_Threejs_Mongo/backend && npm install"]
+
+[start]
+cmd = "cd juegoFinal/Blender_Threejs_Mongo/backend && npm start"

@@ -1,0 +1,8 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd juegoFinal/Blender_Threejs_Mongo/backend && npm install"
+
+[deploy]
+startCommand = "cd juegoFinal/Blender_Threejs_Mongo/backend && npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
