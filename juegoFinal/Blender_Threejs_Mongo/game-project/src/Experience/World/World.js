@@ -111,7 +111,7 @@ export default class World {
         // Posiciones predefinidas por nivel para evitar trabas
         const spawnPositions = {
             1: [
-                { x: -42, y: 1.5, z: 4 }
+                { x: 21.980088558414113, y: 1, z: 0.022510138817641412 }
             ],
             2: [
                 { x: -30, y: 1.5, z: 10 },
