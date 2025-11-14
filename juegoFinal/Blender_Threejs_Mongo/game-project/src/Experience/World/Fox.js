@@ -18,6 +18,15 @@ export default class Fox {
 
         this.setModel()
         this.setAnimation()
+        // Parámetros de seguimiento
+        this.follow = {
+            enabled: true,
+            walkSpeed: 1.8,
+            runSpeed: 3.6,
+            stopDistance: 1.0,
+            runDistance: 5.0,
+            rotationLerp: 0.15
+        }
     }
 
     setModel() {
@@ -75,6 +84,53 @@ export default class Fox {
     }
 
     update() {
+        const deltaSeconds = (this.time.delta || 16) * 0.001
         this.animation.mixer.update(this.time.delta * 0.001)
+
+        if (!this.follow.enabled) return
+
+        const world = this.experience.world
+        const robot = world?.robot
+        if (!robot) return
+
+        // Obtener posición objetivo (preferir física si existe)
+        const targetPos = robot.body?.position ? new THREE.Vector3(robot.body.position.x, robot.body.position.y, robot.body.position.z) : (robot.group ? robot.group.position.clone() : null)
+        if (!targetPos) return
+
+        const foxPos = this.model.position
+        const dir = new THREE.Vector3().subVectors(targetPos, foxPos)
+        // Sólo mover en XZ
+        dir.y = 0
+        const distance = dir.length()
+
+        if (distance > this.follow.stopDistance + 0.01) {
+            // Normalizar dirección y mover
+            dir.normalize()
+
+            const speed = distance > this.follow.runDistance ? this.follow.runSpeed : this.follow.walkSpeed
+            const moveStep = speed * deltaSeconds
+            // No sobrepasar la posición objetivo
+            const step = Math.min(moveStep, Math.max(0, distance - this.follow.stopDistance))
+            this.model.position.addScaledVector(dir, step)
+
+            // Rotación suave hacia la dirección de movimiento
+            const targetRotation = Math.atan2(dir.x, dir.z)
+            const currentY = this.model.rotation.y
+            // Lerp manual sobre el ángulo (considerar wrap-around)
+            let deltaAngle = targetRotation - currentY
+            while (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2
+            while (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2
+            this.model.rotation.y = currentY + deltaAngle * this.follow.rotationLerp
+
+            // Elegir animación
+            if (speed === this.follow.runSpeed) {
+                if (this.animation.actions.current !== this.animation.actions.running) this.animation.play('running')
+            } else {
+                if (this.animation.actions.current !== this.animation.actions.walking) this.animation.play('walking')
+            }
+        } else {
+            // Cerca del jugador: estar en idle
+            if (this.animation.actions.current !== this.animation.actions.idle) this.animation.play('idle')
+        }
     }
 }
