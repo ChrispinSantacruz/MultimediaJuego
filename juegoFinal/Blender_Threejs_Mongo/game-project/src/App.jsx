@@ -14,8 +14,8 @@ const App = () => {
   const requireAuth = import.meta.env.VITE_REQUIRE_AUTH === 'true'
 
   useEffect(() => {
-    // Solo iniciar el juego si está autenticado o no se requiere auth
-    if (!requireAuth || (requireAuth && isAuthenticated && gameStarted)) {
+    // Iniciar el juego si: no se requiere auth, está autenticado, o se inició como invitado
+    if (!requireAuth || gameStarted) {
       const experience = new Experience(canvasRef.current)
 
       const handleProgress = (e) => setProgress(e.detail)
@@ -29,10 +29,10 @@ const App = () => {
         window.removeEventListener('resource-complete', handleComplete)
       }
     }
-  }, [requireAuth, isAuthenticated, gameStarted])
+  }, [requireAuth, gameStarted])
 
-  // Mostrar pantalla de autenticación si se requiere y no está autenticado
-  if (requireAuth && (!isAuthenticated || !gameStarted)) {
+  // Mostrar pantalla de autenticación solo si se requiere auth y el juego no ha iniciado
+  if (requireAuth && !gameStarted) {
     return <AuthScreen onStartGame={() => setGameStarted(true)} />
   }
 

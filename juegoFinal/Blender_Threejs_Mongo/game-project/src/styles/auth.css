@@ -116,6 +116,30 @@
     cursor: not-allowed;
 }
 
+.guest-button {
+    background: linear-gradient(135deg, #00bcd4 0%, #009688 100%);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.guest-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 188, 212, 0.3);
+    background: linear-gradient(135deg, #00acc1 0%, #00897b 100%);
+}
+
+.guest-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .auth-switch {
     text-align: center;
     margin-top: 20px;

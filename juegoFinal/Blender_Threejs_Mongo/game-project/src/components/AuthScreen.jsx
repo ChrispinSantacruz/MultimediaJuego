@@ -95,6 +95,15 @@ export default function AuthScreen({ onStartGame }) {
                     <button type="submit" className="auth-button" disabled={loading}>
                         {loading ? 'Cargando...' : isLogin ? '🔓 Iniciar Sesión' : '🎯 Registrarse'}
                     </button>
+
+                    <button 
+                        type="button" 
+                        className="guest-button" 
+                        onClick={() => onStartGame()}
+                        disabled={loading}
+                    >
+                        👤 Continuar como Invitado
+                    </button>
                 </form>
 
                 <div className="auth-switch">

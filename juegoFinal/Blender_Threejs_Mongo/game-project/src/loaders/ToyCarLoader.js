@@ -124,7 +124,7 @@ export default class ToyCarLoader {
 
                 // 🔍 Filtrar solo nivel 1
                 blocks = allBlocks.filter(b => b.level === 1);
-                console.log(`Datos cargados desde archivo local (nivel 1): ${blocks.length}`);
+                console.log(`Datos cargados desde base de datos (nivel 1): ${blocks.length}`);
 
             }
 

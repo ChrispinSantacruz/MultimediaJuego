@@ -53,18 +53,21 @@ export default class Floor {
     }
 
     setPhysics() {
-        const shape = new CANNON.Box(new CANNON.Vec3(
-            this.size.width / 2,
-            this.size.height / 2,
-            this.size.depth / 2
-        ))
+        // Crear un piso físico plano (Plane) en lugar de Box para evitar colisiones duplicadas
+        const shape = new CANNON.Plane()
 
         this.body = new CANNON.Body({
             mass: 0, // Estático
             shape: shape,
-            position: new CANNON.Vec3(0, -this.size.height / 2, 0)
+            position: new CANNON.Vec3(0, 0, 0),
+            material: this.physics.floorMaterial // Material específico para el piso
         })
 
+        // Rotar el plano para que sea horizontal (por defecto está vertical)
+        this.body.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
+
         this.physics.world.addBody(this.body)
+        
+        console.log('🔧 Piso físico plano creado con material optimizado para caminar');
     }
 }

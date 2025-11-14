@@ -239,9 +239,15 @@ export default class World {
             }
             
             if (dist < 1.5 && hasMovedEnough && !prize.collected) {
+                // Si es moneda final, verificar que esté activada
+                if (prize.role === "finalPrize" && !this.finalPrizeActivated) {
+                    console.log('⚠️ Moneda final aún no está activada. Recoge las monedas necesarias primero.');
+                    return;
+                }
+                
                 prize.collect()
                 prize.collected = true
-                console.log(`✅ Moneda recogida! Distancia: ${dist.toFixed(2)}m`);
+                console.log(`✅ Moneda recogida! Distancia: ${dist.toFixed(2)}m, Role: ${prize.role}`);
 
                 if (prize.role === "default") {
                     this.currentLevelPoints = (this.currentLevelPoints || 0) + 1
@@ -379,72 +385,10 @@ export default class World {
             }
         })
 
-        // ✅ Verificar si todas las monedas se han recogido y aún no se activó el finalPrize
-        // ✅ Activar finalPrize si todas las monedas default fueron recolectadas (desde VR o PC)
-        if (!this.finalPrizeActivated && this.loader?.prizes) {
-            const totalDefault = this.loader.prizes.filter(p => p.role === 'default').length
-            const collectedDefault = this.loader.prizes.filter(p => p.role === 'default' && p.collected).length
-
-            if (totalDefault > 0 && collectedDefault === totalDefault) {
-                const finalCoin = this.loader.prizes.find(p => p.role === "finalPrize")
-                if (finalCoin && !finalCoin.collected && finalCoin.pivot) {
-                    finalCoin.pivot.visible = true
-                    if (finalCoin.model) finalCoin.model.visible = true
-                    this.finalPrizeActivated = true
-
-                    new FinalPrizeParticles({
-                        scene: this.scene,
-                        targetPosition: finalCoin.pivot.position,
-                        sourcePosition: this.experience.vrDolly?.position ?? this.experience.camera.instance.position,
-                        experience: this.experience
-                    })
-
-                    // Faro visual
-                    this.discoRaysGroup = new THREE.Group()
-                    this.scene.add(this.discoRaysGroup)
-
-                    const rayMaterial = new THREE.MeshBasicMaterial({
-                        color: 0xaa00ff,
-                        transparent: true,
-                        opacity: 0.25,
-                        side: THREE.DoubleSide
-                    })
-
-                    const rayCount = 4
-                    for (let i = 0; i < rayCount; i++) {
-                        const cone = new THREE.ConeGeometry(0.2, 4, 6, 1, true)
-                        const ray = new THREE.Mesh(cone, rayMaterial)
-
-                        ray.position.set(0, 2, 0)
-                        ray.rotation.x = Math.PI / 2
-                        ray.rotation.z = (i * Math.PI * 2) / rayCount
-
-                        const spot = new THREE.SpotLight(0xaa00ff, 2, 12, Math.PI / 7, 0.2, 0.5)
-                        spot.castShadow = false
-                        spot.shadow.mapSize.set(1, 1)
-                        spot.position.copy(ray.position)
-                        spot.target.position.set(
-                            Math.cos(ray.rotation.z) * 10,
-                            2,
-                            Math.sin(ray.rotation.z) * 10
-                        )
-
-                        ray.userData.spot = spot
-                        this.discoRaysGroup.add(ray)
-                        this.discoRaysGroup.add(spot)
-                        this.discoRaysGroup.add(spot.target)
-                    }
-
-                    this.discoRaysGroup.position.copy(finalCoin.pivot.position)
-
-                    if (window.userInteracted) {
-                        this.portalSound.play()
-                    }
-
-                    console.log("🪙 FinalPrize activado automáticamente desde VR.")
-                }
-            }
-        }
+        // ⚠️ COMENTADO: Esta lógica duplicada estaba causando que se saltaran niveles
+        // La activación de finalPrize ya se maneja correctamente arriba con currentLevelPoints === pointsTarget
+        // Este bloque verificaba si TODAS las monedas default fueron recolectadas, pero no consideraba
+        // el objetivo del nivel (pointsToComplete), causando que se activara prematuramente
 
 
         // Faro rotación
@@ -591,7 +535,14 @@ export default class World {
 
 
             this.loader.prizes.forEach(p => {
-                if (p.model) p.model.visible = (p.role !== 'finalPrize');
+                // Ocultar moneda final y mostrar monedas default
+                if (p.role === 'finalPrize') {
+                    if (p.model) p.model.visible = false;
+                    if (p.pivot) p.pivot.visible = false;
+                } else {
+                    if (p.model) p.model.visible = true;
+                    if (p.pivot) p.pivot.visible = true;
+                }
                 p.collected = false;
             });
 
