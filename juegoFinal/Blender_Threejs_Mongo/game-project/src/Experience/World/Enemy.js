@@ -10,7 +10,7 @@ export default class Enemy {
         this.time = this.experience.time
         this.physics = this.experience.physics
         this.target = null
-        this.speed = 3.5 // Reducido de 6 a 3.5 para ser más lento que el jugador
+        this.speed = 3.5 // Velocidad base de persecución
         this.chaseDistance = 300
         
         this.position = position
@@ -121,11 +121,18 @@ export default class Enemy {
             // Dirección normalizada
             const dirX = dx / distance
             const dirZ = dz / distance
-            
+
+            // Ajustar velocidad según nivel (nivel 3 enemigos persiguen más lento)
+            const currentLevel = this.experience?.world?.currentLevel || 1
+            let chaseSpeed = this.speed
+            if (currentLevel === 3) {
+                chaseSpeed = this.speed * 0.6 // 40% más lento en nivel 3
+            }
+
             // Aplicar velocidad directa (más eficiente que applyForce)
-            this.body.velocity.x = dirX * this.speed
-            this.body.velocity.z = dirZ * this.speed
-            
+            this.body.velocity.x = dirX * chaseSpeed
+            this.body.velocity.z = dirZ * chaseSpeed
+
             // Rotar hacia el objetivo
             const angle = Math.atan2(dirX, dirZ)
             this.group.rotation.y = angle
