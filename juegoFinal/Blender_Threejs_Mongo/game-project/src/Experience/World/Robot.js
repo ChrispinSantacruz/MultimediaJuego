@@ -152,10 +152,13 @@ export default class Robot {
         const currentLevel = this.experience?.world?.currentLevel || 1
         let moveForce = 80
         let maxSpeed = 20
-        // Hacer al personaje más rápido en nivel 2
+        // Ajustes por nivel: más rápido en nivel 2, un poco más rápido en nivel 3
         if (currentLevel === 2) {
             moveForce = 140
             maxSpeed = 26
+        } else if (currentLevel === 3) {
+            moveForce = 110
+            maxSpeed = 22
         }
         const delta = this.time.delta * 0.001
         let isMoving = false
@@ -168,8 +171,8 @@ export default class Robot {
         try {
             const velLen = this.body.velocity.length()
             // Ajustar umbral de picos según nivel (permitir más velocidad en nivel 2)
-            const peakThreshold = (currentLevel === 2) ? 30 : 20
-            const peakScaleTarget = (currentLevel === 2) ? 18 : 8
+            const peakThreshold = (currentLevel === 2) ? 30 : (currentLevel === 3 ? 26 : 20)
+            const peakScaleTarget = (currentLevel === 2) ? 18 : (currentLevel === 3 ? 14 : 8)
             if (velLen > peakThreshold) {
                 const scale = peakScaleTarget / velLen
                 this.body.velocity.scale(scale, this.body.velocity)
@@ -258,7 +261,9 @@ export default class Robot {
             const dir3D = new THREE.Vector3(dir2D.x, 0, dir2D.y).normalize()
 
             // Ajustar velocidad móvil también por nivel
-            const baseMobile = (currentLevel === 2) ? 220 : 120
+            let baseMobile = 120
+            if (currentLevel === 2) baseMobile = 220
+            else if (currentLevel === 3) baseMobile = 170
             const adjustedSpeed = baseMobile * mobile.intensity // velocidad más fluida pero limitada
             const force = new CANNON.Vec3(dir3D.x * adjustedSpeed, 0, dir3D.z * adjustedSpeed)
 
