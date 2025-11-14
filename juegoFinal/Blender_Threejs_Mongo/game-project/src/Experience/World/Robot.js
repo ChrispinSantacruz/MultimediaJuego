@@ -1,5 +1,5 @@
-import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
+import * as THREE from 'three'
 import Sound from './Sound.js'
 
 export default class Robot {
@@ -43,12 +43,12 @@ export default class Robot {
         const shape = new CANNON.Sphere(0.4)
 
         this.body = new CANNON.Body({
-            mass: 2,
+            mass: 4,
             shape: shape,
             //position: new CANNON.Vec3(4, 1, 0), // Apenas sobre el piso real (que termina en y=0)
             position: new CANNON.Vec3(0, 1.2, 0),
-            linearDamping: 0.7,      // Aumentado de 0.4 a 0.7 para reducir rebotes y deslizamientos
-            angularDamping: 0.99     // Aumentado de 0.95 a 0.99 para mejor control de giro
+            linearDamping: 0.8,
+            angularDamping: 0.9
         })
 
         this.body.angularFactor.set(0, 1, 0)
@@ -147,22 +147,41 @@ export default class Robot {
         }
 
         const keys = this.keyboard.getState()
-        const moveForce = 350 // Aumentado significativamente para recorrer más distancia
-        const turnSpeed = 5.0 // Más rápido para girar
+        // Fuerza y velocidad base (ajustables por nivel)
+        const turnSpeed = 4.0
+        const currentLevel = this.experience?.world?.currentLevel || 1
+        let moveForce = 80
+        let maxSpeed = 20
+        // Hacer al personaje más rápido en nivel 2
+        if (currentLevel === 2) {
+            moveForce = 140
+            maxSpeed = 26
+        }
         const delta = this.time.delta * 0.001
         let isMoving = false
 
-        // Limitar velocidad (aumentada para recorrer distancia más rápido)
-        const maxSpeed = 80 // Aumentado de 50 a 80
+        // Limitar velocidad (aumentada para escapar de enemigos)
         this.body.velocity.x = Math.max(Math.min(this.body.velocity.x, maxSpeed), -maxSpeed)
         this.body.velocity.z = Math.max(Math.min(this.body.velocity.z, maxSpeed), -maxSpeed)
+
+        // Si hay un pico de velocidad por colisión, atenuarlo
+        try {
+            const velLen = this.body.velocity.length()
+            // Ajustar umbral de picos según nivel (permitir más velocidad en nivel 2)
+            const peakThreshold = (currentLevel === 2) ? 30 : 20
+            const peakScaleTarget = (currentLevel === 2) ? 18 : 8
+            if (velLen > peakThreshold) {
+                const scale = peakScaleTarget / velLen
+                this.body.velocity.scale(scale, this.body.velocity)
+            }
+        } catch (e) { }
         
         // Limitar velocidad vertical para evitar salir disparado
-        if (this.body.velocity.y > 15) {
-            this.body.velocity.y = 15
+        if (this.body.velocity.y > 8) {
+            this.body.velocity.y = 8
         }
-        if (this.body.velocity.y < -15) {
-            this.body.velocity.y = -15
+        if (this.body.velocity.y < -8) {
+            this.body.velocity.y = -8
         }
 
         // Salto
@@ -238,7 +257,9 @@ export default class Robot {
             const dir2D = mobile.directionVector
             const dir3D = new THREE.Vector3(dir2D.x, 0, dir2D.y).normalize()
 
-            const adjustedSpeed = 250 * mobile.intensity // velocidad más fluida
+            // Ajustar velocidad móvil también por nivel
+            const baseMobile = (currentLevel === 2) ? 220 : 120
+            const adjustedSpeed = baseMobile * mobile.intensity // velocidad más fluida pero limitada
             const force = new CANNON.Vec3(dir3D.x * adjustedSpeed, 0, dir3D.z * adjustedSpeed)
 
             this.body.applyForce(force, this.body.position)
