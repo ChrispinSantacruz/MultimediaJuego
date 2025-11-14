@@ -546,6 +546,40 @@ export default class World {
                 p.collected = false;
             });
 
+            // Si venimos de nivel 1 y ahora cargamos nivel 2, mover la primera moneda 'default' al frente del portal
+            try {
+                if (this.previousLevel === 1 && level === 2 && this.loader && Array.isArray(this.loader.prizes)) {
+                    // Buscar objeto portal en la escena
+                    const portalObj = this.scene.children.find(c => (c.name && c.name.toLowerCase().includes('portal')) || (c.children && c.children.some(ch => ch.name && ch.name.toLowerCase().includes('portal'))));
+                    if (portalObj) {
+                        // Obtener posición y quaternion en mundo
+                        const portalPos = new THREE.Vector3();
+                        portalObj.getWorldPosition(portalPos);
+                        const portalQuat = new THREE.Quaternion();
+                        portalObj.getWorldQuaternion(portalQuat);
+
+                        // Forward local (z+) en orientación del portal
+                        const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(portalQuat).normalize();
+
+                        // Colocar la moneda 2 unidades delante del portal
+                        const distance = 2
+                        const targetPos = portalPos.clone().add(forward.multiplyScalar(distance));
+                        targetPos.y = 1; // asegurar altura de recogida
+
+                        const firstDefault = this.loader.prizes.find(pr => pr && pr.role === 'default')
+                        if (firstDefault && firstDefault.pivot) {
+                            console.log('🔁 Moviendo primera moneda default delante del portal en:', targetPos)
+                            firstDefault.pivot.position.copy(targetPos)
+                            if (firstDefault.model) firstDefault.model.position.set(0, 0, 0)
+                        }
+                    } else {
+                        console.warn('⚠️ No se encontró objeto portal en la escena para posicionar la moneda delante.')
+                    }
+                }
+            } catch (e) {
+                console.warn('⚠️ No se pudo mover la moneda al frente del portal al cargar nivel 2:', e)
+            }
+
             this.totalDefaultCoins = this.loader.prizes.filter(p => p.role === "default").length;
             console.log(`🎯 Total de monedas default para el nivel ${level}: ${this.totalDefaultCoins}`);
 

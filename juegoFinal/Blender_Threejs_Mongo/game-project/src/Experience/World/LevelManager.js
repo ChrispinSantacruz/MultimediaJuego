@@ -14,6 +14,10 @@ export default class LevelManager {
 
     nextLevel() {
         if (this.currentLevel < this.totalLevels) {
+            // Guardar nivel previo para que el World pueda reaccionar al cambio
+            if (this.experience && this.experience.world) {
+                this.experience.world.previousLevel = this.currentLevel
+            }
             this.currentLevel++;
             console.log(`🎮 Cambiando a nivel ${this.currentLevel}`);
             
