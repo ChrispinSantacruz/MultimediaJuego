@@ -31,20 +31,10 @@ export default class VRIntegration {
 
   _initXR() {
     this.renderer.xr.enabled = true
+    // No insertamos el botón VR en el DOM para evitar el mensaje "VR NOT SUPPORTED".
+    // Conservamos la creación en memoria por compatibilidad, pero no se muestra.
     const vrBtn = VRButton.createButton(this.renderer)
-    document.body.appendChild(vrBtn)
-
-    setTimeout(() => {
-      if (vrBtn.innerText?.includes('NOT SUPPORTED')) {
-        vrBtn.style.display = 'none'
-      } else {
-        vrBtn.style.display = 'block'
-        vrBtn.style.position = 'absolute'
-        vrBtn.style.bottom = '20px'
-        vrBtn.style.left = '20px'
-        vrBtn.style.zIndex = '9999'
-      }
-    }, 100)
+    // Si en el futuro se necesita mostrar, usar: document.body.appendChild(vrBtn)
 
     this.renderer.setAnimationLoop(() => {
       const delta = this.clock.getDelta()
