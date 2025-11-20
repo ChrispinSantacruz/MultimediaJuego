@@ -8,6 +8,7 @@ import Enemy from './Enemy.js'
 import Environment from './Environment.js'
 import Floor from './Floor.js'
 import Fox from './Fox.js'
+import Sign from './Sign.js'
 import LevelManager from './LevelManager.js'
 import MainCharacter from './MainCharacter.js'
 import Robot from './Robot.js'
@@ -149,6 +150,15 @@ export default class World {
         this.robot?.update()
         this.mainCharacter?.update()
         this.blockPrefab?.update()
+
+        // Mantener el cartel mirando al jugador cada frame (si existe)
+        try {
+            if (this.levelSign) {
+                this.levelSign.lookAt(this.robot.group || this.robot.body?.position)
+            }
+        } catch (e) {
+            // Ignorar errores de lookAt
+        }
 
         // 🧟‍♂️ Solo actualizar enemigos si el juego ya comenzó
         if (this.gameStarted) {
@@ -507,6 +517,53 @@ export default class World {
             if (this.loader && this.loader.prizes) {
                 console.log(`🧹 Limpiando ${this.loader.prizes.length} monedas del nivel anterior antes de cargar nuevas`);
                 this.loader.prizes = [];
+            }
+
+            // --- Cartel por nivel: crear un letrero cerca del spawn para identificar el nivel ---
+            try {
+                // El cartel se colocará preferiblemente frente al jugador (según orientación del robot).
+                // Si no es posible, caerá de vuelta a una posición fija delante del spawn.
+                const fallbackOffset = { x: 0, y: 2.2, z: 6 }
+                let signPos = {
+                    x: spawnPoint.x + fallbackOffset.x,
+                    y: spawnPoint.y + fallbackOffset.y,
+                    z: spawnPoint.z + fallbackOffset.z
+                }
+
+                try {
+                    // Si el robot tiene grupo (malla), usar su dirección para colocar el cartel enfrente
+                    const robotGroup = this.robot?.group
+                    if (robotGroup) {
+                        // Obtener dirección forward del robot (en world space)
+                        const forward = new THREE.Vector3(0, 0, 1)
+                        robotGroup.getWorldDirection(forward)
+                        forward.y = 0
+                        forward.normalize()
+
+                        // Colocar el cartel unos metros delante del robot
+                        signPos = {
+                            x: robotGroup.position.x + forward.x * 6,
+                            y: robotGroup.position.y + 2.4,
+                            z: robotGroup.position.z + forward.z * 6
+                        }
+                    }
+                } catch (e) {
+                    // Si cualquier fallo, usamos la posición por defecto
+                }
+
+                // Destruir cartel anterior si existía
+                if (this.levelSign) {
+                    try { this.levelSign.destroy() } catch (e) { /* ignore */ }
+                    this.levelSign = null
+                }
+
+                this.levelSign = new Sign(this.experience, `Nivel ${level}`, signPos)
+                // Hacer que el cartel mire hacia el jugador inicialmente
+                this.levelSign.lookAt(this.robot.group || this.robot.body?.position)
+
+                console.log(`📍 Cartel de Nivel ${level} creado en (${signPos.x.toFixed(1)}, ${signPos.y.toFixed(1)}, ${signPos.z.toFixed(1)})`)
+            } catch (err) {
+                console.warn('❗ No se pudo crear el cartel del nivel:', err)
             }
             
             this.experience.menu.setStatus?.(`🎖️ Puntos: ${this.points}`);
