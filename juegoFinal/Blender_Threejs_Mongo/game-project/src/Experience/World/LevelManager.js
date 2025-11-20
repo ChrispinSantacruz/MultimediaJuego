@@ -7,7 +7,7 @@ export default class LevelManager {
         // IMPORTANTE: Cambia estos números para ajustar cuántas monedas necesitas recoger
         this.pointsToComplete = {
             1: 2, // Nivel 1: 2 monedas para activar portal
-            2: 2, // Nivel 2: 2 monedas para activar portal
+            2: 5, // Nivel 2: 2 monedas para activar portal
             3: 2  // Nivel 3: 2 monedas para activar portal
         };
     }

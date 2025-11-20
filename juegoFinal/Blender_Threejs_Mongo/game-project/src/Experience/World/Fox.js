@@ -23,8 +23,10 @@ export default class Fox {
             enabled: true,
             walkSpeed: 1.8,
             runSpeed: 3.6,
-            stopDistance: 1.0,
-            runDistance: 5.0,
+            // Distancia mínima al jugador (mayor -> menos pegado)
+            stopDistance: 3.5,
+            // Distancia a partir de la cual corre en vez de caminar
+            runDistance: 7.0,
             rotationLerp: 0.15
         }
     }
